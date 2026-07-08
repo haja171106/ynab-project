@@ -5,7 +5,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function sendPasswordResetEmail(email: string, token: string) {
   const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`;
 
-  await resend.emails.send({
+  const { data, error } = await resend.emails.send({
     from: process.env.EMAIL_FROM!,
     to: email,
     subject: "Reset your YNAB password",
@@ -20,4 +20,12 @@ export async function sendPasswordResetEmail(email: string, token: string) {
       </div>
     `,
   });
+
+  if (error) {
+    console.error("[Resend] Failed to send email:", error);
+    throw new Error(error.message || "Failed to send email");
+  }
+
+  console.log("[Resend] Email sent successfully:", data?.id);
+  return data;
 }
