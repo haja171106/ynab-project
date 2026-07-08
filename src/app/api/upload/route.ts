@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import cloudinary from "cloudinary";
+import type { UploadApiResponse } from "cloudinary";
 
 cloudinary.v2.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -12,41 +13,73 @@ cloudinary.v2.config({
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
+
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
     const formData = await req.formData();
-    const file = formData.get("file") as File;
-    const folder = (formData.get("folder") as string) || "misc";
 
-    if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    const file = formData.get("file");
+    const folderValue = formData.get("folder");
+
+    const folder =
+      typeof folderValue === "string" && folderValue.length > 0
+        ? folderValue
+        : "misc";
+
+    if (!(file instanceof File)) {
+      return NextResponse.json(
+        { error: "No file provided" },
+        { status: 400 }
+      );
     }
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+
     const base64 = `data:${file.type};base64,${buffer.toString("base64")}`;
 
-    const result = await new Promise<any>((resolve, reject) => {
-      cloudinary.v2.uploader.upload(base64, {
-        folder: `ynab/${folder}`,
-        resource_type: "auto",
-      }, (error, result) => {
-        if (error) reject(error);
-        else resolve(result);
-      });
-    });
+    const result = await new Promise<UploadApiResponse>(
+      (resolve, reject) => {
+        cloudinary.v2.uploader.upload(
+          base64,
+          {
+            folder: `ynab/${folder}`,
+            resource_type: "auto",
+          },
+          (error, uploadResult) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+
+            if (!uploadResult) {
+              reject(new Error("Cloudinary returned no result"));
+              return;
+            }
+
+            resolve(uploadResult);
+          }
+        );
+      }
+    );
 
     return NextResponse.json({
       url: result.secure_url,
       publicId: result.public_id,
     });
-
-  } catch (error: any) {
+  } catch (error) {
     console.error("Upload error:", error);
+
     return NextResponse.json(
-      { error: "Upload failed", details: error?.message },
+      {
+        error: "Upload failed",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 }
     );
   }

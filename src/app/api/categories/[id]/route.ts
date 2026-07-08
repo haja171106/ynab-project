@@ -8,20 +8,19 @@ export async function DELETE(
 ) {
   const session = await auth();
 
-  if (!session?.user) {
+  if (!session?.user?.id) {
     return NextResponse.json(
       { error: "Unauthorized" },
       { status: 401 }
     );
   }
 
-  const userId = (session.user as any).id;
   const { id } = await params;
 
   const category = await prisma.category.findFirst({
     where: {
       id,
-      userId,
+      userId: session.user.id,
     },
   });
 

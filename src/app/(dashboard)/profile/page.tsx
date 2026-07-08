@@ -182,6 +182,7 @@ export default function ProfilePage() {
               }}
             >
               {profile?.image ? (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={profile.image}
                   alt="avatar"
