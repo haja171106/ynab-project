@@ -4,13 +4,25 @@ import { auth } from "@/lib/auth";
 
 export async function GET() {
   const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  if (!session?.user?.id) {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401 }
+    );
+  }
 
   const userId = session.user.id;
 
   const [expenses, incomes, expensesByCategory] = await Promise.all([
-    prisma.expense.aggregate({ where: { userId }, _sum: { amount: true } }),
-    prisma.income.aggregate({ where: { userId }, _sum: { amount: true } }),
+    prisma.expense.aggregate({
+      where: { userId },
+      _sum: { amount: true },
+    }),
+    prisma.income.aggregate({
+      where: { userId },
+      _sum: { amount: true },
+    }),
     prisma.expense.groupBy({
       by: ["categoryId"],
       where: { userId },
@@ -18,21 +30,37 @@ export async function GET() {
     }),
   ]);
 
-  const categories = await prisma.category.findMany({
+  const categories: Array<{
+    id: string;
+    title: string;
+  }> = await prisma.category.findMany({
     where: { userId },
-    select: { id: true, title: true },
+    select: {
+      id: true,
+      title: true,
+    },
   });
 
-  const categoryMap = Object.fromEntries(categories.map((c) => [c.id, c.title]));
+  const categoryMap = Object.fromEntries(
+    categories.map((category) => [
+      category.id,
+      category.title,
+    ])
+  );
 
-  const totalExpenses = expenses._sum.amount || 0;
-  const totalIncome = incomes._sum.amount || 0;
+  const totalExpenses = expenses._sum.amount ?? 0;
+  const totalIncome = incomes._sum.amount ?? 0;
   const balance = totalIncome - totalExpenses;
 
-  const chartData = expensesByCategory.map((e) => ({
-    name: categoryMap[e.categoryId] || "Unknown",
-    value: e._sum.amount || 0,
+  const chartData = expensesByCategory.map((expense) => ({
+    name: categoryMap[expense.categoryId] ?? "Unknown",
+    value: expense._sum.amount ?? 0,
   }));
 
-  return NextResponse.json({ totalExpenses, totalIncome, balance, chartData });
+  return NextResponse.json({
+    totalExpenses,
+    totalIncome,
+    balance,
+    chartData,
+  });
 }
