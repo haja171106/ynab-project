@@ -5,8 +5,15 @@ import crypto from "crypto";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email } = await req.json();
+    const { email: rawEmail } = await req.json();
+    const email = rawEmail?.trim().toLowerCase();
+
+    if (!email) {
+      return NextResponse.json({ message: "If this email exists, a reset link has been sent." });
+    }
+
     const user = await prisma.user.findUnique({ where: { email } });
+    console.log("[forgot-password] received:", JSON.stringify(rawEmail), "normalized:", email, "found:", !!user);
 
     // Always return success to prevent email enumeration
     if (!user) return NextResponse.json({ message: "If this email exists, a reset link has been sent." });
@@ -17,7 +24,11 @@ export async function POST(req: NextRequest) {
     await prisma.passwordResetToken.deleteMany({ where: { email } });
     await prisma.passwordResetToken.create({ data: { email, token, expires } });
 
-    await sendPasswordResetEmail(email, token);
+    try {
+      await sendPasswordResetEmail(email, token);
+    } catch (emailError) {
+      console.error("[forgot-password] Failed to send email:", emailError);
+    }
 
     return NextResponse.json({ message: "If this email exists, a reset link has been sent." });
   } catch (error) {
