@@ -1,0 +1,23 @@
+.page { max-width: 1200px; }
+.loading { display: flex; align-items: center; justify-content: center; min-height: 60vh; font-size: 2rem; color: var(--harvest-orange); }
+.header { margin-bottom: 32px; }
+.greeting { font-size: 1.75rem; font-weight: 800; color: var(--text-primary); }
+.subtext { color: var(--text-secondary); margin-top: 4px; }
+.statsGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 28px; }
+.chartSection { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+.chartCard { background: var(--surface); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+.cardTitle { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.cardTitle i { color: var(--harvest-orange); }
+.empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 200px; gap: 12px; color: var(--text-muted); }
+.empty i { font-size: 2rem; }
+.recentSection { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.recentCard { background: var(--surface); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+.list { display: flex; flex-direction: column; gap: 12px; }
+.listItem { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.listItem:last-child { border-bottom: none; }
+.listLeft { display: flex; flex-direction: column; gap: 2px; }
+.listCat { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); }
+.listDate { font-size: 0.75rem; color: var(--text-muted); }
+.listAmount { font-size: 0.95rem; font-weight: 700; font-family: 'Sora', sans-serif; }
+.emptyText { color: var(--text-muted); font-size: 0.875rem; text-align: center; padding: 24px 0; }
+@media (max-width: 900px) { .statsGrid { grid-template-columns: 1fr; } .chartSection, .recentSection { grid-template-columns: 1fr; } }

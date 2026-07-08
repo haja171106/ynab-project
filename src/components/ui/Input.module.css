@@ -1,0 +1,16 @@
+.group { display: flex; flex-direction: column; gap: 6px; }
+.label { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); }
+.required { color: var(--harvest-orange); margin-left: 2px; }
+.inputWrap { position: relative; }
+.input {
+  width: 100%; padding: 10px 14px; border-radius: 10px;
+  border: 2px solid var(--border); background: var(--surface);
+  font-size: 0.9rem; color: var(--text-primary); outline: none;
+  transition: border-color 0.2s;
+}
+.input:focus { border-color: var(--harvest-orange); }
+.input::placeholder { color: var(--text-muted); }
+.hasIcon { padding-left: 40px; }
+.icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.875rem; }
+.error { font-size: 0.8rem; color: #ef4444; }
+.inputError { border-color: #ef4444 !important; }
