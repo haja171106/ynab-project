@@ -375,6 +375,7 @@ h1, h2, h3 { font-family: 'Sora', sans-serif; }
 /* Main content */
 .main-content {
   flex: 1;
+  min-width: 0;
   margin-left: var(--sidebar-width);
   transition: margin-left 0.3s ease;
   min-height: 100vh;
@@ -481,6 +482,7 @@ h1, h2, h3 { font-family: 'Sora', sans-serif; }
 /* Table */
 .table-container {
   overflow-x: auto;
+  max-width: 100%;
   border-radius: 12px;
   border: 1px solid var(--gray-100);
 }
